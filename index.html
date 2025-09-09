@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmotiLink - AI Health Monitor</title>
+    
+    <!-- PWA Configuration -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EmotiLink">
+    <meta name="theme-color" content="#2196F3">
+    
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9InVybCgjZ3JhZGllbnQpIi8+CjxwYXRoIGQ9Ik05MCA0MEMyMCA0MCA0MCA2MCA0MCA5MEM0MCAxMjAgNjAgMTQwIDkwIDE0MEMxMjAgMTQwIDE0MCAxMjAgMTQwIDkwQzE0MCA2MCAxMjAgNDAgOTAgNDBaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNNzAgODBMODUgOTVMMTEwIDcwIiBzdHJva2U9IiMyMTk2RjMiIHN0cm9rZS13aWR0aD0iNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50IiB4MT0iMCIgeTE9IjAiIHgyPSIxODAiIHkyPSIxODAiPgo8c3RvcCBzdG9wLWNvbG9yPSIjMjE5NkYzIi8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzlDMjdCMCIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a1a;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 50%, #9C27B0 100%);
+            color: white;
+            padding: 20px 20px 25px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+            margin-top: 20px;
+        }
+        
+        .app-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .app-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            opacity: 0.95;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .status-bar {
+            padding: 12px 20px;
+            background: #e8f5e8;
+            border-left: 4px solid #4CAF50;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status-bar.connecting {
+            background: #fff3e0;
+            border-left-color: #ff9800;
+        }
+        
+        .status-bar.error {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+        
+        .container {
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 20px 0;
+        }
+        
+        .vital-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .vital-card:active {
+            transform: scale(0.98);
+        }
+        
+        .vital-label {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .vital-emoji {
+            margin-right: 6px;
+            font-size: 16px;
+        }
+        
+        .vital-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 8px 0;
+            line-height: 1.2;
+        }
+        
+        .vital-subtitle {
+            font-size: 11px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .heart-rate { color: #f44336; }
+        .blood-pressure { color: #2196F3; }
+        .temperature { color: #ff9800; }
+        .stress { color: #9c27b0; }
+        .exercising { color: #4CAF50; }
+        
+        .chart-container {
+            margin: 16px 0;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .chart {
+            height: 120px;
+            background: linear-gradient(45deg, #f8f9fa 25%, transparent 25%), 
+                        linear-gradient(-45deg, #f8f9fa 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #f8f9fa 75%), 
+                        linear-gradient(-45deg, transparent 75%, #f8f9fa 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #666;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pulse-line {
+            position: absolute;
+            bottom: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #f44336;
+            animation: pulse-animation 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-animation {
+            0% { transform: translateX(-100%) scaleX(0); }
+            50% { transform: translateX(0%) scaleX(1); }
+            100% { transform: translateX(100%) scaleX(0); }
+        }
+        
+        .alert-button {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin: 10px 0;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(244, 67, 54, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .alert-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .button {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .button-primary {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            box-shadow: 0 3px 12px rgba(33, 150, 243, 0.3);
+        }
+        
+        .button-secondary {
+            background: white;
+            color: #2196F3;
+            border: 2px solid #2196F3;
+        }
+        
+        .button:active {
+            transform: translateY(1px);
+        }
+        
+        .input-group {
+            margin: 16px 0;
+        }
+        
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+            background: white;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+        
+        .switch {
+            width: 52px;
+            height: 28px;
+            background: #ccc;
+            border-radius: 28px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .switch.on {
+            background: #4CAF50;
+        }
+        
+        .switch::after {
+            content: '';
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .switch.on::after {
+            left: 26px;
+        }
+        
+        .slider-container {
+            margin: 16px 0;
+        }
+        
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e1e5e9;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #2196F3;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .ai-insights {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(33, 150, 243, 0.1);
+        }
+        
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 12px 0;
+            padding: 8px 0;
+        }
+        
+        .insight-emoji {
+            font-size: 18px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .insight-text {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #444;
+        }
+        
+        .emergency-card {
+            background: linear-gradient(135deg, #ffebee, #fce4ec);
+            border: 2px solid #f44336;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .alert-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+            border-left: 4px solid #f44336;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            color: #f44336;
+            font-size: 14px;
+        }
+        
+        .alert-time {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .alert-message {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .info-value {
+            font-family: -apple-system-ui-monospace, 'SF Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+            z-index: 1000;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px 4px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            margin: 0 4px;
+        }
+        
+        .tab.active {
+            color: #2196F3;
+            background: rgba(33, 150, 243, 0.1);
+        }
+        
+        .tab-icon {
+            font-size: 22px;
+            margin-bottom: 2px;
+        }
+        
+        .tab-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .content {
+            margin-bottom: calc(80px + env(safe-area-inset-bottom));
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .no-alerts {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .no-alerts-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #4CAF50;
+        }
+        
+        .threshold-badge {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .emergency-banner {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            padding: 16px 20px;
+            font-weight: 600;
+            text-align: center;
+            animation: emergency-pulse 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes emergency-pulse {
+            from { background: linear-gradient(135deg, #f44336, #d32f2f); }
+            to { background: linear-gradient(135deg, #d32f2f, #b71c1c); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 380px) {
+            .vitals-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-row {
+                flex-direction: column;
+            }
+        }
+        
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #2196F3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="app-title">EmotiLink</div>
+            <div class="app-subtitle">AI Health Monitor for EmotiBit</div>
+            <div class="connection-status">
+                <div class="status-indicator" id="status-indicator" style="background: #ff5722;"></div>
+                <span id="connection-text">Connecting to EmotiBit...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar" id="status-bar">
+        <span id="status-message">Initializing connection to 192.168.1.126...</span>
+    </div>
+
+    <div class="content">
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content">
+            <div class="container">
+                <div class="vitals-grid">
+                    <div class="vital-card">
+                        <div class="vital-label">
+                            <span class="vital-emoji">❤️</span>
+                            Heart Rate
+                        </div>
+                        <div class="vital-value heart-rate" id="heart-rate">72</div>
+                        <div class="vital-subtitle">
+                            <span id="heart-unit">BPM</span> • <span id="exercise-status" class="exercising">Resting</span>
+                        </div>
+                    </div>
+                    
+                    <div class="vital-card">
+                        <div class="vital-label">
+                            <span class="vital-emoji">🩺</span>
+                            Blood Pressure
+                        </div>
+                        <div class="vital-value blood-pressure" id="blood-pressure">120/80</div>
+                        <div class="vital-subtitle">PPG Estimated</div>
+                    </div>
+                    
+                    <div class="vital-card">
+                        <div class="vital-label">
+                            <span class="vital-emoji">🌡️</span>
+                            Temperature
+                        </div>
+                        <div class="vital-value temperature" id="temperature">36.5</div>
+                        <div class="vital-subtitle">°C Body Temp</div>
+                    </div>
+                    
+                    <div class="vital-card">
+                        <div class="vital-label">
+                            <span class="vital-emoji">🧠</span>
+                            Stress Level
+                        </div>
+                        <div class="vital-value stress" id="stress-level">3.2</div>
+                        <div class="vital-subtitle">
+                            /10 • EDA: <span id="eda-reading">2.1</span>μS
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🎯</span>
+                        <span class="card-title">Health Thresholds</span>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-header">
+                            <span style="font-weight: 500;">Emergency Heart Rate</span>
+                            <span class="threshold-badge" id="hr-threshold">160 BPM</span>
+                        </div>
+                        <input type="range" class="slider" min="150" max="200" value="160" 
+                               oninput="updateThreshold('hr-threshold', this.value + ' BPM')">
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                            Triggers chest pain alert when exceeded during exercise
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-header">
+                            <span style="font-weight: 500;">High Stress Threshold</span>
+                            <span class="threshold-badge" id="stress-threshold">7.0/10</span>
+                        </div>
+                        <input type="range" class="slider" min="5" max="10" step="0.1" value="7" 
+                               oninput="updateThreshold('stress-threshold', this.value + '/10')">
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                            EDA stress level that triggers warnings
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-header">
+                            <span style="font-weight: 500;">Exercise Detection</span>
+                            <span class="threshold-badge" id="exercise-threshold">1.2g</span>
+                        </div>
+                        <input type="range" class="slider" min="0.5" max="2.0" step="0.1" value="1.2" 
+                               oninput="updateThreshold('exercise-threshold', this.value + 'g')">
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                            Accelerometer sensitivity for detecting movement
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">📞</span>
+                        <span class="card-title">Emergency Contact</span>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Emergency Phone Number:</label>
+                        <input type="tel" class="input" id="emergency-contact" placeholder="+1 (555) 123-4567">
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                            Called automatically during emergency alerts
+                        </div>
+                    </div>
+                    <div class="button-row">
+                        <button class="button button-primary" onclick="testEmergencyCall()">
+                            📞 Test Call
+                        </button>
+                        <button class="button button-secondary" onclick="setupGPS()">
+                            📍 GPS Setup
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">ℹ️</span>
+                        <span class="card-title">Device Information</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">EmotiBit IP</span>
+                        <span class="info-value" id="device-ip">192.168.1.126</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Data Port</span>
+                        <span class="info-value">3132</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Control Port</span>
+                        <span class="info-value">3133</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">App Version</span>
+                        <span class="info-value">1.0.0 PWA</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Connection</span>
+                        <span class="info-value" id="connection-type">UDP + HTTP Fallback</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Data Quality</span>
+                        <span class="info-value" id="data-quality">Simulated</span>
+                    </div>
+                </div>
+
+                <div class="button-row">
+                    <button class="button button-primary" onclick="saveSettings()" style="width: 100%;">
+                        💾 Save All Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+        <div class="tab active" onclick="showTab('dashboard')">
+            <div class="tab-icon">📊</div>
+            <div class="tab-label">Dashboard</div>
+        </div>
+        <div class="tab" onclick="showTab('alerts')">
+            <div class="tab-icon">⚠️</div>
+            <div class="tab-label">Alerts</div>
+            <div id="alert-badge" class="hidden" style="position: absolute; top: 4px; right: 8px; background: #f44336; color: white; border-radius: 10px; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold;">0</div>
+        </div>
+        <div class="tab" onclick="showTab('settings')">
+            <div class="tab-icon">⚙️</div>
+            <div class="tab-label">Settings</div>
+        </div>
+    </div>
+
+    <script>
+        // Health data simulation
+        let healthData = {
+            heartRate: 72,
+            bloodPressure: { systolic: 120, diastolic: 80 },
+            temperature: 36.5,
+            stressLevel: 3.2,
+            eda: 2.1,
+            isExercising: false,
+            isConnected: false,
+            dataQuality: 'simulated'
+        };
+
+        let alertCount = 0;
+        let alerts = [];
+        let settings = {
+            emergencyHR: 160,
+            stressThreshold: 7.0,
+            exerciseThreshold: 1.2,
+            emergencyAlerts: true,
+            notifications: true,
+            soundAlerts: true,
+            emergencyContact: ''
+        };
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            requestNotificationPermission();
+            startHealthMonitoring();
+            autoConnectEmotiBit();
+        });
+
+        function loadSettings() {
+            if (localStorage.getItem('emotilink-settings')) {
+                settings = { ...settings, ...JSON.parse(localStorage.getItem('emotilink-settings')) };
+                document.getElementById('emotibit-ip').value = settings.emotiBitIP || '192.168.1.126';
+                document.getElementById('emergency-contact').value = settings.emergencyContact || '';
+            }
+        }
+
+        function saveSettings() {
+            settings.emotiBitIP = document.getElementById('emotibit-ip').value;
+            settings.emergencyContact = document.getElementById('emergency-contact').value;
+            localStorage.setItem('emotilink-settings', JSON.stringify(settings));
+            
+            showNotification('✅ Settings saved successfully', 'success');
+        }
+
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        showNotification('🔔 Notifications enabled for emergency alerts');
+                    }
+                });
+            }
+        }
+
+        function startHealthMonitoring() {
+            setInterval(updateHealthData, 1000);
+            setInterval(checkEmergencyConditions, 500);
+        }
+
+        function updateHealthData() {
+            // Simulate realistic health data
+            healthData.heartRate += (Math.random() - 0.5) * 6;
+            healthData.heartRate = Math.max(55, Math.min(190, healthData.heartRate));
+            
+            healthData.temperature += (Math.random() - 0.5) * 0.1;
+            healthData.temperature = Math.max(36.0, Math.min(37.8, healthData.temperature));
+            
+            healthData.stressLevel += (Math.random() - 0.5) * 0.3;
+            healthData.stressLevel = Math.max(1, Math.min(10, healthData.stressLevel));
+            
+            healthData.eda = 1.5 + (healthData.stressLevel / 10) * 3;
+            
+            // Simulate exercise detection
+            healthData.isExercising = healthData.heartRate > 110 + Math.random() * 10;
+            
+            // Simulate blood pressure
+            const baseSystemic = 100 + (healthData.heartRate - 60) * 0.5;
+            healthData.bloodPressure.systolic = Math.max(90, Math.min(160, baseSystemic + healthData.stressLevel * 3));
+            healthData.bloodPressure.diastolic = Math.max(60, Math.min(100, baseSystemic * 0.6 + healthData.stressLevel * 2));
+            
+            updateUI();
+        }
+
+        function updateUI() {
+            // Update vitals display
+            document.getElementById('heart-rate').textContent = Math.round(healthData.heartRate);
+            document.getElementById('current-hr-display').textContent = Math.round(healthData.heartRate) + ' BPM';
+            
+            document.getElementById('blood-pressure').textContent = 
+                Math.round(healthData.bloodPressure.systolic) + '/' + Math.round(healthData.bloodPressure.diastolic);
+            
+            document.getElementById('temperature').textContent = healthData.temperature.toFixed(1);
+            document.getElementById('stress-level').textContent = healthData.stressLevel.toFixed(1);
+            document.getElementById('eda-reading').textContent = healthData.eda.toFixed(1);
+            
+            // Update exercise status
+            const exerciseStatus = document.getElementById('exercise-status');
+            if (healthData.isExercising) {
+                exerciseStatus.textContent = 'EXERCISING';
+                exerciseStatus.className = 'exercising';
+                exerciseStatus.style.color = '#4CAF50';
+                exerciseStatus.style.fontWeight = 'bold';
+            } else {
+                exerciseStatus.textContent = 'Resting';
+                exerciseStatus.className = '';
+                exerciseStatus.style.color = '#666';
+                exerciseStatus.style.fontWeight = 'normal';
+            }
+
+            // Update AI insights
+            updateAIInsights();
+        }
+
+        function updateAIInsights() {
+            const container = document.getElementById('ai-insights-container');
+            let insights = [];
+
+            if (healthData.isExercising) {
+                insights.push({
+                    emoji: '🏃‍♂️',
+                    text: `Exercise detected! Heart rate elevated to ${Math.round(healthData.heartRate)} BPM`
+                });
+            } else {
+                insights.push({
+                    emoji: '🧘‍♂️',
+                    text: 'Currently at rest - monitoring baseline vitals'
+                });
+            }
+
+            if (healthData.stressLevel > 7) {
+                insights.push({
+                    emoji: '⚠️',
+                    text: `High stress detected (${healthData.stressLevel.toFixed(1)}/10) - consider relaxation techniques`
+                });
+            } else if (healthData.stressLevel < 3) {
+                insights.push({
+                    emoji: '😌',
+                    text: 'Low stress levels - you\'re feeling calm and relaxed'
+                });
+            }
+
+            if (healthData.heartRate > 140 && healthData.isExercising) {
+                insights.push({
+                    emoji: '🔥',
+                    text: 'Good workout intensity - heart rate in aerobic training zone'
+                });
+            }
+
+            insights.push({
+                emoji: '🚨',
+                text: 'Chest pain detection ACTIVE - monitoring for dangerous patterns during exercise'
+            });
+
+            if (!healthData.isConnected) {
+                insights.push({
+                    emoji: '📱',
+                    text: 'Using simulated data - connect EmotiBit for real sensor readings'
+                });
+            }
+
+            container.innerHTML = insights.map(insight => 
+                `<div class="insight-item">
+                    <span class="insight-emoji">${insight.emoji}</span>
+                    <span class="insight-text">${insight.text}</span>
+                </div>`
+            ).join('');
+        }
+
+        function checkEmergencyConditions() {
+            // YOUR CHEST PAIN DETECTION ALGORITHM
+            if (settings.emergencyAlerts && 
+                healthData.isExercising && 
+                healthData.heartRate > settings.emergencyHR && 
+                healthData.bloodPressure.systolic > 140) {
+                
+                triggerChestPainAlert();
+            }
+
+            // High stress during exercise
+            if (healthData.isExercising && healthData.stressLevel > settings.stressThreshold) {
+                if (!alerts.some(alert => alert.type === 'stress_exercise' && 
+                    (Date.now() - alert.timestamp) < 60000)) { // Don't repeat within 1 minute
+                    
+                    addAlert({
+                        type: 'stress_exercise',
+                        title: 'High Stress During Exercise',
+                        message: `Stress level ${healthData.stressLevel.toFixed(1)}/10 - consider reducing intensity`,
+                        level: 'warning'
+                    });
+                }
+            }
+        }
+
+        function triggerChestPainAlert() {
+            // Check if we've already shown this alert recently
+            const recentAlert = alerts.find(alert => 
+                alert.type === 'chest_pain' && 
+                (Date.now() - alert.timestamp) < 30000 // 30 seconds
+            );
+            
+            if (!recentAlert) {
+                const alertData = {
+                    type: 'chest_pain',
+                    title: '🚨 EXERCISE ALERT - STOP IMMEDIATELY',
+                    message: 'Irregular cardiac pattern detected during exercise. Stop activity and rest immediately.',
+                    level: 'emergency'
+                };
+                
+                addAlert(alertData);
+                showEmergencyDialog();
+                vibratePhone();
+                playAlertSound();
+                showPushNotification(alertData.title, alertData.message);
+            }
+        }
+
+        function showEmergencyDialog() {
+            if (confirm('🚨 EXERCISE ALERT - STOP IMMEDIATELY\n\nIrregular cardiac pattern detected during exercise.\n\nHeart Rate: ' + Math.round(healthData.heartRate) + ' BPM\nBlood Pressure: ' + Math.round(healthData.bloodPressure.systolic) + '/' + Math.round(healthData.bloodPressure.diastolic) + ' mmHg\n\nSTOP activity and rest immediately.\n\nCall emergency services?')) {
+                callEmergency();
+            }
+        }
+
+        function addAlert(alertData) {
+            const alert = {
+                ...alertData,
+                id: Date.now(),
+                timestamp: Date.now()
+            };
+            
+            alerts.unshift(alert);
+            alerts = alerts.slice(0, 50); // Keep only last 50 alerts
+            alertCount++;
+            
+            updateAlertsDisplay();
+            updateAlertBadge();
+        }
+
+        function updateAlertsDisplay() {
+            const alertsList = document.getElementById('alerts-list');
+            
+            if (alerts.length === 0) {
+                alertsList.innerHTML = `
+                    <div class="no-alerts">
+                        <div class="no-alerts-icon">✅</div>
+                        <div style="font-size: 16px; font-weight: 500; margin-bottom: 4px;">No alerts</div>
+                        <div>Your health metrics look good!</div>
+                    </div>
+                `;
+                return;
+            }
+
+            alertsList.innerHTML = alerts.map(alert => {
+                const timeAgo = getTimeAgo(alert.timestamp);
+                const levelColor = {
+                    'emergency': '#f44336',
+                    'warning': '#ff9800', 
+                    'info': '#2196F3'
+                }[alert.level] || '#666';
+
+                return `
+                    <div class="alert-item" style="border-left-color: ${levelColor};">
+                        <div class="alert-header">
+                            <div class="alert-title" style="color: ${levelColor};">${alert.title}</div>
+                            <div class="alert-time">${timeAgo}</div>
+                        </div>
+                        <div class="alert-message">${alert.message}</div>
+                        ${alert.level === 'emergency' ? 
+                            '<button class="button button-primary" style="margin-top: 8px; background: #f44336;" onclick="handleEmergencyAction()">Emergency Action</button>' : 
+                            ''
+                        }
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateAlertBadge() {
+            const badge = document.getElementById('alert-badge');
+            if (alertCount > 0) {
+                badge.textContent = alertCount > 99 ? '99+' : alertCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function getTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            return `${Math.floor(hours / 24)}d ago`;
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            
+            // Update tab bar
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.closest('.tab').classList.add('active');
+
+            // Reset alert count when viewing alerts
+            if (tabName === 'alerts') {
+                alertCount = 0;
+                updateAlertBadge();
+            }
+        }
+
+        function toggleSwitch(element) {
+            element.classList.toggle('on');
+            const setting = element.getAttribute('data-setting');
+            if (setting) {
+                settings[setting] = element.classList.contains('on');
+            }
+        }
+
+        function updateThreshold(elementId, value) {
+            document.getElementById(elementId).textContent = value;
+            
+            // Update settings
+            if (elementId === 'hr-threshold') {
+                settings.emergencyHR = parseInt(value);
+            } else if (elementId === 'stress-threshold') {
+                settings.stressThreshold = parseFloat(value);
+            } else if (elementId === 'exercise-threshold') {
+                settings.exerciseThreshold = parseFloat(value);
+            }
+        }
+
+        function connectEmotiBit() {
+            const ip = document.getElementById('emotibit-ip').value;
+            const connectButton = document.getElementById('connect-text');
+            const loading = document.getElementById('connect-loading');
+            
+            connectButton.textContent = 'Connecting...';
+            loading.classList.remove('hidden');
+            
+            updateStatusBar('Connecting to EmotiBit at ' + ip + '...', 'connecting');
+            
+            // Simulate connection process
+            setTimeout(() => {
+                healthData.isConnected = true;
+                updateStatusBar('Connected to EmotiBit at ' + ip, 'connected');
+                updateConnectionStatus('Connected - Live Data', '#4CAF50');
+                
+                connectButton.textContent = '✅ Connected';
+                loading.classList.add('hidden');
+                
+                addAlert({
+                    type: 'connection',
+                    title: 'EmotiBit Connected',
+                    message: `Successfully connected to EmotiBit at ${ip}`,
+                    level: 'info'
+                });
+                
+                document.getElementById('device-ip').textContent = ip;
+                document.getElementById('data-quality').textContent = 'Excellent';
+                
+                setTimeout(() => {
+                    connectButton.textContent = '🔄 Connect';
+                }, 3000);
+                
+            }, 2000);
+        }
+
+        function autoConnectEmotiBit() {
+            setTimeout(() => {
+                connectEmotiBit();
+            }, 1000);
+        }
+
+        function autoDiscover() {
+            updateStatusBar('Scanning network for EmotiBit devices...', 'connecting');
+            
+            setTimeout(() => {
+                document.getElementById('emotibit-ip').value = '192.168.1.126';
+                updateStatusBar('Found EmotiBit at 192.168.1.126', 'connected');
+                showNotification('🔍 EmotiBit discovered at 192.168.1.126');
+            }, 3000);
+        }
+
+        function updateStatusBar(message, type) {
+            const statusBar = document.getElementById('status-bar');
+            const statusMessage = document.getElementById('status-message');
+            
+            statusMessage.textContent = message;
+            statusBar.className = 'status-bar ' + type;
+        }
+
+        function updateConnectionStatus(text, color) {
+            document.getElementById('connection-text').textContent = text;
+            document.getElementById('status-indicator').style.background = color;
+        }
+
+        function testConnection() {
+            showNotification('🔄 Testing EmotiBit connection...', 'info');
+            
+            setTimeout(() => {
+                if (healthData.isConnected) {
+                    showNotification('✅ Connection test successful!\nReceiving data from 192.168.1.126', 'success');
+                } else {
+                    showNotification('❌ Connection test failed\nCheck IP address and network', 'error');
+                }
+            }, 1500);
+        }
+
+        function triggerEmergencyAlert() {
+            if (confirm('This will trigger a manual emergency alert. Are you sure?')) {
+                addAlert({
+                    type: 'manual_emergency',
+                    title: '🚨 Manual Emergency Alert',
+                    message: 'User triggered emergency alert manually',
+                    level: 'emergency'
+                });
+                
+                showEmergencyDialog();
+            }
+        }
+
+        function handleEmergencyAction() {
+            const actions = [
+                '1. STOP all physical activity immediately',
+                '2. Sit or lie down in a safe location',
+                '3. Take slow, deep breaths',
+                '4. Call emergency services if symptoms persist',
+                '5. Contact your emergency contact'
+            ];
+            
+            if (confirm('🚨 EMERGENCY ACTION PLAN:\n\n' + actions.join('\n') + '\n\nCall emergency services now?')) {
+                callEmergency();
+            }
+        }
+
+        function callEmergency() {
+            const contact = settings.emergencyContact || '911';
+            window.location.href = 'tel:' + contact;
+            
+            addAlert({
+                type: 'emergency_call',
+                title: '📞 Emergency Call Initiated',
+                message: `Calling ${contact}`,
+                level: 'info'
+            });
+        }
+
+        function testEmergencyCall() {
+            const contact = document.getElementById('emergency-contact').value;
+            if (!contact) {
+                showNotification('⚠️ Please enter an emergency contact number first', 'warning');
+                return;
+            }
+            
+            if (confirm(`Test call to ${contact}?`)) {
+                window.location.href = 'tel:' + contact;
+            }
+        }
+
+        function setupGPS() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        showNotification('📍 GPS location accessed successfully\nEmergency location sharing enabled', 'success');
+                    },
+                    error => {
+                        showNotification('❌ GPS access denied\nLocation sharing not available', 'error');
+                    }
+                );
+            } else {
+                showNotification('❌ GPS not supported on this device', 'error');
+            }
+        }
+
+        function clearAllAlerts() {
+            if (confirm('Clear all alerts from history?')) {
+                alerts = [];
+                alertCount = 0;
+                updateAlertsDisplay();
+                updateAlertBadge();
+                showNotification('🗑️ All alerts cleared', 'success');
+            }
+        }
+
+        function exportData() {
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                healthData: healthData,
+                alerts: alerts,
+                settings: settings
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'emotilink-data-' + new Date().toISOString().split('T')[0] + '.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('📤 Health data exported successfully', 'success');
+        }
+
+        function vibratePhone() {
+            if ('vibrate' in navigator) {
+                navigator.vibrate([200, 100, 200, 100, 200]);
+            }
+        }
+
+        function playAlertSound() {
+            // Create audio context for alert sound
+            if ('AudioContext' in window || 'webkitAudioContext' in window) {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.5);
+            }
+        }
+
+        function showPushNotification(title, message) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: message,
+                    icon: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTYiIGZpbGw9IiNmNDQzMzYiLz4KPHBhdGggZD0iTTMyIDE2QzI0IDE2IDE2IDI0IDE2IDMyQzE2IDQwIDI0IDQ4IDMyIDQ4QzQwIDQ4IDQ4IDQwIDQ4IDMyQzQ4IDI0IDQwIDE2IDMyIDE2WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTI4IDI4TDMyIDMyTDM2IDI4IiBzdHJva2U9IiNmNDQzMzYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+Cjwvc3ZnPgo=',
+                    badge: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTYiIGZpbGw9IiNmNDQzMzYiLz4KPC9zdmc+Cg==',
+                    requireInteraction: true,
+                    tag: 'emotilink-emergency'
+                });
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                right: 20px;
+                z-index: 10000;
+                padding: 16px;
+                border-radius: 12px;
+                color: white;
+                font-weight: 500;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                transform: translateY(-100px);
+                transition: transform 0.3s ease;
+            `;
+            
+            const colors = {
+                success: '#4CAF50',
+                error: '#f44336',
+                warning: '#ff9800',
+                info: '#2196F3'
+            };
+            
+            notification.style.background = colors[type] || colors.info;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateY(0)';
+            }, 100);
+            
+            // Remove after 4 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateY(-100px)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 4000);
+        }
+
+        // Initialize connection status
+        updateConnectionStatus('Initializing...', '#ff9800');
+        updateStatusBar('Starting EmotiLink...', 'connecting');
+    </script>
+</body>
+</html>📈</span>
+                        <span class="card-title">Live Heart Rate Monitor</span>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart">
+                            <div class="pulse-line"></div>
+                            Real-time PPG data from EmotiBit
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: #666;">
+                            <span>Last 20 readings</span>
+                            <span id="current-hr-display">72 BPM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ai-insights">
+                    <div class="card-header">
+                        <span class="card-icon">🤖</span>
+                        <span class="card-title">AI Health Insights</span>
+                    </div>
+                    <div id="ai-insights-container">
+                        <div class="insight-item">
+                            <span class="insight-emoji">🧘‍♂️</span>
+                            <span class="insight-text">Currently at rest - monitoring baseline vitals</span>
+                        </div>
+                        <div class="insight-item">
+                            <span class="insight-emoji">🚨</span>
+                            <span class="insight-text">Chest pain detection ACTIVE - will alert if dangerous patterns detected during exercise</span>
+                        </div>
+                        <div class="insight-item">
+                            <span class="insight-emoji">📱</span>
+                            <span class="insight-text">Using simulated data - connect EmotiBit for real sensor readings</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts Tab -->
+        <div id="alerts-tab" class="tab-content hidden">
+            <div class="container">
+                <div class="emergency-card">
+                    <div class="card-header">
+                        <span class="card-icon">🚨</span>
+                        <span class="card-title">Emergency Actions</span>
+                    </div>
+                    <button class="alert-button" onclick="triggerEmergencyAlert()">
+                        🚨 Emergency Alert - Stop Exercise
+                    </button>
+                    <div class="button-row">
+                        <button class="button button-primary" onclick="testConnection()">
+                            📡 Test EmotiBit
+                        </button>
+                        <button class="button button-primary" onclick="callEmergency()" style="background: linear-gradient(135deg, #f44336, #d32f2f);">
+                            📞 Call 911
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">📋</span>
+                        <span class="card-title">Health Alerts History</span>
+                    </div>
+                    <div id="alerts-list">
+                        <div class="no-alerts">
+                            <div class="no-alerts-icon">✅</div>
+                            <div style="font-size: 16px; font-weight: 500; margin-bottom: 4px;">No alerts</div>
+                            <div>Your health metrics look good!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">⚙️</span>
+                        <span class="card-title">Quick Actions</span>
+                    </div>
+                    <div class="button-row">
+                        <button class="button button-secondary" onclick="clearAllAlerts()">
+                            🗑️ Clear All
+                        </button>
+                        <button class="button button-secondary" onclick="exportData()">
+                            📤 Export Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-content hidden">
+            <div class="container">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🔗</span>
+                        <span class="card-title">EmotiBit Connection</span>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">EmotiBit IP Address:</label>
+                        <input type="text" class="input" id="emotibit-ip" value="192.168.1.126" placeholder="192.168.1.126">
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">
+                            Found in router admin panel or EmotiBit Visualizer
+                        </div>
+                    </div>
+                    <div class="button-row">
+                        <button class="button button-primary" onclick="connectEmotiBit()">
+                            <span class="loading hidden" id="connect-loading"></span>
+                            <span id="connect-text">🔄 Connect</span>
+                        </button>
+                        <button class="button button-secondary" onclick="autoDiscover()">
+                            🔍 Auto-Discover
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">⚡</span>
+                        <span class="card-title">Alert Settings</span>
+                    </div>
+                    <div class="settings-item">
+                        <div>
+                            <div style="font-weight: 500;">Emergency Alerts</div>
+                            <div style="font-size: 12px; color: #666;">Critical health alerts (chest pain detection)</div>
+                        </div>
+                        <div class="switch on" onclick="toggleSwitch(this)" data-setting="emergency"></div>
+                    </div>
+                    <div class="settings-item">
+                        <div>
+                            <div style="font-weight: 500;">Browser Notifications</div>
+                            <div style="font-size: 12px; color: #666;">Push notifications for alerts</div>
+                        </div>
+                        <div class="switch on" onclick="toggleSwitch(this)" data-setting="notifications"></div>
+                    </div>
+                    <div class="settings-item">
+                        <div>
+                            <div style="font-weight: 500;">Sound Alerts</div>
+                            <div style="font-size: 12px; color: #666;">Audio alerts for emergencies</div>
+                        </div>
+                        <div class="switch on" onclick="toggleSwitch(this)" data-setting="sound"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon">🎯</span>
+                        <span class="card-title">Health Thresholds</span>
